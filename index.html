@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Today's Facts</title>
+<link href="https://fonts.googleapis.com/css2?family=Varela+Round&display=swap" rel="stylesheet">
+<style>
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  overflow: hidden;
+  font-family: "Varela Round", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+#widget {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  color: #ffffff;
+  position: relative;
+  transition: opacity 1s ease;
+}
+#icon-wrap {
+  flex: 1;
+  border-radius: 16px;
+  overflow: hidden;
+  background-color: rgba(0, 0, 0, 0.10);
+  animation: kenburns 30s ease-in-out infinite alternate;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#icon-placeholder {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #1a1a2e 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#big-icon {
+  font-size: 100px;
+  line-height: 1;
+  position: relative;
+  z-index: 2;
+  filter: drop-shadow(0 4px 16px rgba(0,0,0,0.7));
+}
+/* Foreign word gets a special language badge */
+#lang-badge {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 3;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.3);
+  border-radius: 8px;
+  padding: 4px 10px;
+  color: #fff;
+  display: none;
+}
+#content {
+  flex: 2;
+  margin-top: 6px;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.10);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  overflow: hidden;
+}
+#title {
+  font-size: 26px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  margin-bottom: 8px;
+  color: #ffffff;
+  text-shadow: 0 2px 4px rgba(0,0,0,1), 0 4px 10px rgba(0,0,0,.95);
+}
+#foreign-word {
+  font-size: 36px;
+  font-weight: 700;
+  color: #ffe066;
+  text-shadow: 0 2px 6px rgba(0,0,0,1);
+  margin-bottom: 6px;
+  display: none;
+}
+#word-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+#main-word {
+  font-size: 32px;
+  font-weight: 700;
+  color: #ffffff;
+  text-shadow: 0 3px 6px rgba(0,0,0,1);
+  display: none;
+}
+#part-of-speech {
+  font-size: 20px;
+  color: rgba(255,255,255,0.6);
+  font-style: italic;
+  display: none;
+}
+#headline {
+  font-size: 28px;
+  line-height: 1.25;
+  font-weight: 600;
+  color: #ffffff;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 4px rgba(0,0,0,1), 0 4px 10px rgba(0,0,0,.95);
+}
+#detail {
+  font-size: 24px;
+  line-height: 1.35;
+  font-weight: 400;
+  color: rgba(255,255,255,0.82);
+  text-shadow: 0 1px 3px rgba(0,0,0,1), 0 2px 8px rgba(0,0,0,.9);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+#loading {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.7);
+  border-radius: 16px;
+  gap: 16px;
+}
+#loading-icon {
+  font-size: 64px;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+#loading-text {
+  font-size: 32px;
+  font-weight: 500;
+  color: rgba(255,255,255,0.8);
+  letter-spacing: 1px;
+}
+#loading.hidden { display: none; }
+.fade-out { opacity: 0; }
+@keyframes kenburns {
+  from { transform: scale(1); }
+  to   { transform: scale(1.08); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%       { opacity: 1;   transform: scale(1.15); }
+}
+</style>
+</head>
+<body>
+
+<div id="widget">
+  <div id="icon-wrap">
+    <div id="icon-placeholder"></div>
+    <div id="lang-badge"></div>
+    <div id="big-icon">💡</div>
+  </div>
+  <div id="content">
+    <div id="title"></div>
+    <div id="foreign-word"></div>
+    <div id="word-row">
+      <span id="main-word"></span>
+      <span id="part-of-speech"></span>
+    </div>
+    <div id="headline"></div>
+    <div id="detail"></div>
+  </div>
+  <div id="loading">
+    <div id="loading-icon">⏳</div>
+    <div id="loading-text">Loading today's facts…</div>
+  </div>
+</div>
+
+<script>
+const ROTATE_INTERVAL = 60000;
+
+// ─── Built-in foreign word lists ──────────────────────────────────────────
+// Each entry: { word, translation, language, langCode }
+const FOREIGN_WORDS = [
+  // French
+  { word: "dépaysement", translation: "The feeling of being a foreigner or out of one's element", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "flâner", translation: "To stroll or wander aimlessly through the city", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "souvenir", translation: "A memory; a keepsake that recalls a past experience", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "joie de vivre", translation: "Exuberant enjoyment of life; a cheerful, carefree spirit", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "l'esprit de l'escalier", translation: "Thinking of a witty comeback only after the moment has passed", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "nonchalant", translation: "Feeling or appearing casually calm and relaxed", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "bête noire", translation: "A person or thing one particularly dislikes or dreads", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "savoir-faire", translation: "The ability to act appropriately in any situation; worldliness", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "coup de grâce", translation: "A finishing blow; an act that ends something decisively", language: "French", langCode: "FR", icon: "🇫🇷" },
+  { word: "raison d'être", translation: "The most important reason for someone's existence or work", language: "French", langCode: "FR", icon: "🇫🇷" },
+
+  // Italian
+  { word: "abbiocco", translation: "The drowsy feeling after a large meal", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "gattara", translation: "An elderly woman who devotes herself to caring for stray cats", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "culaccino", translation: "The ring left on a table by a cold, wet glass", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "magari", translation: "An expression meaning 'I wish!', 'maybe', or 'perhaps'", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "meriggiare", translation: "To rest at noon in the shade, especially in summer heat", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "dolce far niente", translation: "The pleasure of doing nothing; the sweetness of idleness", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "sprezzatura", translation: "The art of making difficult things look effortless", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "passeggiata", translation: "A leisurely evening stroll, especially in a town center", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "boh", translation: "A shrug-word expressing 'I don't know' or 'who knows?'", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+  { word: "pantofolaio", translation: "A person who prefers staying home over going out; a homebody", language: "Italian", langCode: "IT", icon: "🇮🇹" },
+
+  // Spanish
+  { word: "madrugada", translation: "The early hours of the morning, roughly 2–5 AM", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "sobremesa", translation: "Time spent talking after a meal while still at the table", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "vergüenza ajena", translation: "Feeling embarrassed on behalf of someone else; second-hand shame", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "estrenar", translation: "To use or wear something for the very first time", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "trasnochar", translation: "To stay up very late or through the entire night", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "añoranza", translation: "A deep longing or nostalgia for something or someone lost", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "friolero", translation: "A person who is especially sensitive to cold temperatures", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "madrugar", translation: "To get up very early in the morning", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "puente", translation: "Literally 'bridge'; taking a day off to make a long weekend", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+  { word: "chapuza", translation: "A poorly done job; a botched or shoddy piece of work", language: "Spanish", langCode: "ES", icon: "🇪🇸" },
+
+  // Latin
+  { word: "carpe diem", translation: "Seize the day; make the most of the present moment", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "memento mori", translation: "Remember that you will die; a reminder of mortality", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "amor fati", translation: "Love of fate; embracing everything that happens in life", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "tabula rasa", translation: "A blank slate; the mind before it receives outside impressions", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "in medias res", translation: "Into the middle of things; starting a story mid-action", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "per aspera ad astra", translation: "Through hardship to the stars; perseverance leads to glory", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "veni, vidi, vici", translation: "I came, I saw, I conquered — Julius Caesar", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "cogito ergo sum", translation: "I think, therefore I am — Descartes' proof of existence", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "tempus fugit", translation: "Time flies; a reminder that time passes swiftly", language: "Latin", langCode: "LA", icon: "🏛️" },
+  { word: "in vino veritas", translation: "In wine there is truth; people reveal themselves when drinking", language: "Latin", langCode: "LA", icon: "🏛️" },
+
+  // German
+  { word: "Fernweh", translation: "A longing to travel to faraway places; wanderlust", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Schadenfreude", translation: "Pleasure derived from another person's misfortune", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Weltschmerz", translation: "World-weariness; sadness felt when reality falls short of ideals", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Torschlusspanik", translation: "The fear that time is running out to act on life's opportunities", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Verschlimmbessern", translation: "To make something worse while trying to improve it", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Gemütlichkeit", translation: "A warm, cozy feeling of comfort, friendliness, and belonging", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Fingerspitzengefühl", translation: "Fingertip feeling; a delicate, intuitive sense of touch or tact", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Drachenfutter", translation: "Literally 'dragon food'; a peace offering to an angry partner", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Kummerspeck", translation: "Literally 'grief bacon'; weight gained from emotional overeating", language: "German", langCode: "DE", icon: "🇩🇪" },
+  { word: "Zugzwang", translation: "A situation where any move one makes will worsen their position", language: "German", langCode: "DE", icon: "🇩🇪" },
+
+  // Chinese
+  { word: "缘分 (yuánfèn)", translation: "Fate or destiny that brings people together; a karmic connection", language: "Chinese", langCode: "ZH", icon: "🇨🇳" },
+  { word: "差不多 (chàbuduō)", translation: "Close enough; approximately; more or less — a very common expression", language: "Chinese", langCode: "ZH", icon: "🇨🇳" },
+  { word: "面子 (miànzi)", translation: "Face; social honor, reputation, and prestige in the eyes of others", language: "Chinese", langCode: "ZH", icon: "🇨🇳" },
+  { word: "加油 (jiāyóu)", translation: "Literally 'add oil'; an encouragement meaning 'go for it!' or 'you got this!'", language: "Chinese", langCode: "ZH", icon: "🇨🇳" },
+  { word: "随缘 (suíyuán)", translation: "Going with the flow; letting fate decide; accepting what comes", language: "Chinese", langCode: "ZH", icon: "🇨🇳" },
+];
+
+// ─── Built-in English words (fallback if dictionary API fails) ────────────
+const FALLBACK_WORDS = [
+  { word: "ephemeral", pos: "adjective", definition: "Lasting for a very short time; transitory." },
+  { word: "sonder", pos: "noun", definition: "The realization that each passerby has a life as vivid and complex as your own." },
+  { word: "ineffable", pos: "adjective", definition: "Too great or extreme to be expressed in words." },
+  { word: "liminal", pos: "adjective", definition: "Relating to a transitional or threshold stage; occupying a position at a boundary." },
+  { word: "serendipity", pos: "noun", definition: "The occurrence of events by chance in a happy or beneficial way." },
+  { word: "petrichor", pos: "noun", definition: "The pleasant smell that accompanies the first rain after a dry spell." },
+  { word: "mellifluous", pos: "adjective", definition: "Sweet or musical; pleasant to hear." },
+  { word: "hiraeth", pos: "noun", definition: "A longing for a home to which you cannot return, or that may never have been." },
+  { word: "solipsism", pos: "noun", definition: "The view that the self is all that can be known to exist." },
+  { word: "palimpsest", pos: "noun", definition: "Something altered but still bearing visible traces of its earlier form." },
+  { word: "susurrus", pos: "noun", definition: "A whispering or rustling sound." },
+  { word: "quixotic", pos: "adjective", definition: "Exceedingly idealistic; unrealistic and impractical." },
+  { word: "perspicacious", pos: "adjective", definition: "Having a ready insight; shrewd; having a clear understanding." },
+  { word: "lacuna", pos: "noun", definition: "A missing portion in a book or manuscript; a gap or void." },
+  { word: "vellichor", pos: "noun", definition: "The strange wistfulness of used bookshops." },
+];
+
+// ─── Utility ──────────────────────────────────────────────────────────────
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function pick(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
+// ─── Fetch random facts (no key, CORS enabled) ────────────────────────────
+async function fetchFacts(count = 8) {
+  const results = [];
+  const fetches = Array.from({ length: count }, () =>
+    fetch('https://uselessfacts.jsph.pl/api/v2/facts/random?language=en')
+      .then(r => r.ok ? r.json() : null)
+      .catch(() => null)
+  );
+  const data = await Promise.all(fetches);
+  data.forEach(d => {
+    if (d && d.text) results.push(d.text);
+  });
+  return results;
+}
+
+// ─── Fetch word definition from Free Dictionary API ───────────────────────
+async function fetchWordDefinition(word) {
+  try {
+    const res = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data) || !data[0]) return null;
+    const entry = data[0];
+    const meaning = entry.meanings && entry.meanings[0];
+    if (!meaning) return null;
+    const def = meaning.definitions && meaning.definitions[0];
+    if (!def) return null;
+    return {
+      word: entry.word,
+      pos: meaning.partOfSpeech,
+      definition: def.definition,
+    };
+  } catch { return null; }
+}
+
+// ─── Build all slides ─────────────────────────────────────────────────────
+async function buildAllItems() {
+  // Fetch facts
+  const factTexts = await fetchFacts(8);
+
+  // Pick random English words and fetch their definitions
+  const wordPool = shuffle(FALLBACK_WORDS).slice(0, 5);
+  const wordItems = await Promise.all(wordPool.map(async (w) => {
+    const live = await fetchWordDefinition(w.word);
+    return live || w;
+  }));
+
+  // Pick foreign words (one per language, shuffled)
+  const foreignItems = shuffle(FOREIGN_WORDS).slice(0, 8);
+
+  // Build slide objects
+  const slides = [];
+
+  factTexts.forEach(text => {
+    slides.push({
+      type: 'fact',
+      title: '💡 FUN FACT',
+      icon: '💡',
+      headline: text,
+      detail: '',
+    });
+  });
+
+  wordItems.forEach(w => {
+    slides.push({
+      type: 'word',
+      title: '📖 WORD OF THE DAY',
+      icon: '📖',
+      word: w.word,
+      pos: w.pos,
+      headline: '',
+      detail: w.definition,
+    });
+  });
+
+  foreignItems.forEach(f => {
+    slides.push({
+      type: 'foreign',
+      title: '🌍 FOREIGN WORD OF THE DAY',
+      icon: f.icon,
+      language: f.language,
+      langCode: f.langCode,
+      foreignWord: f.word,
+      headline: f.translation,
+      detail: '',
+    });
+  });
+
+  return shuffle(slides);
+}
+
+// ─── Display ──────────────────────────────────────────────────────────────
+let allItems = [];
+let current  = 0;
+
+// Gradient palettes per type
+const GRADIENTS = {
+  fact:    'linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #1a1a2e 100%)',
+  word:    'linear-gradient(135deg, #1a2e1a 0%, #163e21 40%, #0f6030 70%, #1a2e1a 100%)',
+  foreign: 'linear-gradient(135deg, #2e1a1a 0%, #3e1621 40%, #600f3f 70%, #2e1a1a 100%)',
+};
+
+function showItem() {
+  const widget = document.getElementById('widget');
+  widget.classList.add('fade-out');
+
+  setTimeout(() => {
+    const item = allItems[current];
+
+    // Background gradient
+    const placeholder = document.getElementById('icon-placeholder');
+    placeholder.style.background = GRADIENTS[item.type] || GRADIENTS.fact;
+
+    // Title
+    document.getElementById('title').textContent = item.title;
+
+    // Big icon
+    document.getElementById('big-icon').textContent = item.icon;
+
+    // Reset all optional elements
+    document.getElementById('foreign-word').style.display = 'none';
+    document.getElementById('word-row').style.display = 'none';
+    document.getElementById('main-word').style.display = 'none';
+    document.getElementById('part-of-speech').style.display = 'none';
+    document.getElementById('lang-badge').style.display = 'none';
+    document.getElementById('headline').textContent = '';
+    document.getElementById('detail').textContent = '';
+
+    if (item.type === 'fact') {
+      document.getElementById('headline').textContent = item.headline;
+
+    } else if (item.type === 'word') {
+      const wordRow = document.getElementById('word-row');
+      const mainWord = document.getElementById('main-word');
+      const pos = document.getElementById('part-of-speech');
+      wordRow.style.display = 'flex';
+      mainWord.style.display = 'inline';
+      pos.style.display = 'inline';
+      mainWord.textContent = item.word;
+      pos.textContent = item.pos;
+      document.getElementById('detail').textContent = item.detail;
+
+    } else if (item.type === 'foreign') {
+      const badge = document.getElementById('lang-badge');
+      const fw = document.getElementById('foreign-word');
+      badge.style.display = 'block';
+      badge.textContent = item.langCode;
+      fw.style.display = 'block';
+      fw.textContent = item.foreignWord;
+      document.getElementById('headline').textContent = item.headline;
+    }
+
+    current = (current + 1) % allItems.length;
+    widget.classList.remove('fade-out');
+  }, 1000);
+}
+
+async function init() {
+  try {
+    allItems = await buildAllItems();
+    document.getElementById('loading').classList.add('hidden');
+    showItem();
+    setInterval(showItem, ROTATE_INTERVAL);
+  } catch (err) {
+    console.error('Widget error:', err);
+    document.getElementById('loading-icon').textContent = '✕';
+    document.getElementById('loading-text').textContent = 'Error: ' + err.message;
+  }
+}
+
+init();
+
+// Auto-reload at midnight for fresh daily content
+const now = new Date();
+const msUntilMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1) - now;
+setTimeout(() => location.reload(), msUntilMidnight);
+</script>
+</body>
+</html>
